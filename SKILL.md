@@ -5,7 +5,7 @@ description: Find and implement AGENT TODO tasks in project files, with or witho
 
 # Agent TODO
 
-Execute the tasks written on lines beginning with the case-sensitive marker
+Execute the tasks identified by the case-sensitive marker
 `AGENT TODO`, followed by whitespace and a task description. A hyphen separator
 is optional: both `AGENT TODO - implement X` and `AGENT TODO implement X` are
 valid. Do the work, not just a review or a plan.
@@ -18,19 +18,15 @@ valid. Do the work, not just a review or a plan.
 2. Respect repository instructions, access restrictions, ignore rules, and
    existing uncommitted changes. Skip binary files, dependencies, and generated
    output unless the user explicitly includes them.
-3. Match the marker at the beginning of a line, allowing indentation and an
-   optional language-appropriate comment prefix, such as `#`, `//`, `/*`, `*`,
-   `<!--`, `--`, or `;`. Ignore occurrences embedded in prose, strings, or examples.
-   For ripgrep, a candidate-search pattern is:
-
-   ```regex
-   ^[ \t]*(?:(?:#|//|/\*|\*|<!--|--|;)[ \t]*)?AGENT TODO[ \t]+(?:-[ \t]*)?(.*)$
-   ```
-
+3. Find markers wherever they appear in the selected files, including comments,
+   prose, and strings. Do not require a marker to begin a line or use a
+   particular comment prefix.
 4. Read each candidate in context to confirm it is a task. Treat the text after
-   the marker, excluding the optional hyphen separator and comment delimiters,
-   as the task description. Skip markers without a task description. Record the
-   file, location, and task text before editing; line numbers may shift.
+   the marker, excluding the optional hyphen separator and surrounding syntax,
+   as the task description. Do not skip a task solely because it is in prose
+   or a string. Skip illustrative examples that do not request actual work and
+   markers without a task description. Record the file, location, and task text
+   before editing; line numbers may shift.
    If there are no tasks, report that and stop without changing files.
 
 ## Execute and verify
@@ -47,10 +43,12 @@ valid. Do the work, not just a review or a plan.
    syntax check. If automated checks do not exist, inspect the diff and perform
    suitable non-destructive validation; report the validation limits.
 4. Remove a TODO only after its requested work is complete and verified.
-   Remove just its marker line and any now-empty comment wrapper; preserve
-   surrounding documentation, unrelated comments, and valid syntax. If a
-   contiguous comment continuation clearly belongs only to that TODO, remove
-   that continuation too, not unrelated instructions or other TODOs.
+   Remove just its marker and task text, and any now-empty comment wrapper.
+   Remove the whole line only if it contains nothing else that needs preserving.
+   Preserve surrounding prose, string content, documentation, unrelated comments,
+   and valid syntax. If a contiguous comment continuation clearly belongs only
+   to that TODO, remove that continuation too, not unrelated instructions or
+   other TODOs.
 5. If a task is blocked, fails validation, or cannot be completed, leave its
    TODO intact, report the reason, and continue with independent tasks.
 6. Review the final diff and re-scan the original scope. Confirm that completed

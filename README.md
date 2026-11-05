@@ -1,4 +1,4 @@
-# agent-todo-skill
+# agent-todo-skill [![skills.sh](https://skills.sh/b/leblocks/agent-todo-skill)](https://skills.sh/leblocks/agent-todo-skill)
 
 An agent skill for discovering, implementing, and verifying `AGENT TODO` tasks in project files,
 then removing only the TODOs whose work is complete and verified.
@@ -14,7 +14,6 @@ then removing only the TODOs whose work is complete and verified.
 
 This is an instruction-only skill, not a standalone executable. The host agent supplies file access
 and execution capabilities; build and test tools depend on the target project.
-The ripgrep regex in `SKILL.md` helps find candidates; it is not a script or test runner.
 
 ## Installation
 
@@ -55,8 +54,9 @@ Indentation and language-appropriate comment prefixes are supported:
 <!-- AGENT TODO - add an accessible label to the search field -->
 ```
 
-The agent reads every candidate in context. Occurrences inside prose, strings, or examples are ignored,
-as are markers without a task description. Comment delimiters are not part of the task description.
+Markers can appear anywhere in a file, including comments, prose, and strings; they do not have to begin a line.
+The agent reads every candidate in context to identify actual tasks, skipping illustrative examples that do not
+request work and markers without a task description. Surrounding syntax is not part of the task description.
 
 ## Scope and workflow
 
@@ -76,7 +76,8 @@ and reports its limits. State-changing provisioning scripts are not run merely t
 
 Only completed and verified TODOs are removed, together with any now-empty comment wrapper or continuation
 belonging exclusively to that task. Surrounding documentation, unrelated comments, other TODOs, and valid syntax
-are preserved. Blocked, unfinished, or failed-validation TODOs remain intact while independent tasks continue.
+are preserved, including other prose or string content on the same line.
+Blocked, unfinished, or failed-validation TODOs remain intact while independent tasks continue.
 
 The agent reviews the final diff, re-scans the original scope, and re-runs affected checks if cleanup changes
 executable content. Newly discovered tasks are reported rather than triggering an unbounded loop.
